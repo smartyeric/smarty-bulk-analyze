@@ -2,8 +2,12 @@ import csv
 import sys
 import json
 import getopt
+import tkinter
 
-options, remainder = getopt.getopt(sys.argv[1:], 'i:so', ['input=', 'state', 'output'])
+stateArg = 'All'
+inputFile = sys.argv[1]
+outputFile = 'none'
+options, remainder = getopt.getopt(sys.argv[1:], 'i:s:o:', ['input=', 'state=', 'output='])
 for opt, arg in options:
     if (opt in ('-i', '--input')):
         inputFile = arg
@@ -98,10 +102,10 @@ def read_csv_file(file_path, delimiter=','):
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=delimiter)
         reader.fieldnames = [field.strip().lower() for field in reader.fieldnames]
-        if (len(sys.argv) - 1 == 2):
-            stateArg = sys.argv[2]
-        else:
-            stateArg = 'All'
+        #if (len(sys.argv) - 1 == 2):
+        #    stateArg = sys.argv[2]
+        #else:
+        #    stateArg = 'All'
         if (stateArg in states):
             for row in reader:
                 if (stateArg == row.get('state') or abbreviation_to_name[stateArg] == row.get('state') or stateArg == row.get('[state_abbreviation]')):
@@ -431,10 +435,9 @@ def generate_example(row):
     if (row.get('[last_line]') != ''):
         example = example + ' ' + str(row.get('[last_line]'))
     return example
-    
 
 def main():
-    file_path = sys.argv[1]
+    file_path = inputFile
     detected_delimiter = detect_delimiter(file_path)
     records = read_csv_file(file_path, delimiter=detected_delimiter)
     summary_array = count_records(records)
