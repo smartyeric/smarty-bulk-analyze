@@ -1,6 +1,16 @@
 import csv
 import sys
 import json
+import getopt
+
+options, remainder = getopt.getopt(sys.argv[1:], 'i:so', ['input=', 'state', 'output'])
+for opt, arg in options:
+    if (opt in ('-i', '--input')):
+        inputFile = arg
+    if (opt in ('-s', '--state')):
+        stateArg = arg
+    if (opt in ('-o', '--output')):
+        outputFile = arg
 
 states = [
     "AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "IA",
