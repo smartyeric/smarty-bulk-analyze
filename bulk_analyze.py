@@ -2,7 +2,6 @@ import csv
 import sys
 import json
 import getopt
-import tkinter
 
 stateArg = 'All'
 inputFile = sys.argv[1]
