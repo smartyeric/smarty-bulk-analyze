@@ -2,6 +2,7 @@ import csv
 import sys
 import json
 import getopt
+from tqdm import tqdm
 
 stateArg = 'All'
 inputFile = sys.argv[1]
@@ -98,19 +99,16 @@ def detect_delimiter(file_path):
 
 def read_csv_file(file_path, delimiter=','):
     records = []
+    total_rows = sum(1 for _ in open(file_path, newline='')) - 1  # Count total rows minus header
     with open(file_path, newline='') as csvfile:
         reader = csv.DictReader(csvfile, delimiter=delimiter)
         reader.fieldnames = [field.strip().lower() for field in reader.fieldnames]
-        #if (len(sys.argv) - 1 == 2):
-        #    stateArg = sys.argv[2]
-        #else:
-        #    stateArg = 'All'
         if (stateArg in states):
-            for row in reader:
+            for row in tqdm(reader, total=total_rows, desc="Processing records"):
                 if (stateArg == row.get('state') or abbreviation_to_name[stateArg] == row.get('state') or stateArg == row.get('[state_abbreviation]')):
                     records.append(row)
         if (stateArg == 'All' or (stateArg not in states)):
-            for row in reader:
+            for row in tqdm(reader, total=total_rows, desc="Processing records"):
                 records.append(row)
     return records
 
@@ -439,6 +437,8 @@ def main():
     file_path = inputFile
     detected_delimiter = detect_delimiter(file_path)
     records = read_csv_file(file_path, delimiter=detected_delimiter)
+    
+    print("Analyzing records...")
     summary_array = count_records(records)
     recordCount = len(records)
     inputSum = generate_input_summary(records)
@@ -447,6 +447,8 @@ def main():
     unmatchedSum = add_examples(unmatchedArray, recordCount)
     matchedArray = generate_matched_summary(records)
     matchedSum = add_examples(matchedArray, recordCount)
+    
+    print("Generating JSON output...")
     output_json = generate_json(inputSum, initialSum, unmatchedSum, matchedSum)
     print(output_json)
 
