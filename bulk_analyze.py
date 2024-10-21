@@ -167,6 +167,7 @@ def add_examples(inputArray, recordCount):
             if (summary_value + '2' in inputExamples):
                 exampleDict['Example 2'] = f"{inputExamples[summary_value + '2']}"
             finalDict [summary_value + ' Examples'] = exampleDict.copy()
+            exampleDict = {}
     return finalDict
 
 def generate_unmatched_summary(records):
