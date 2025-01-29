@@ -2,6 +2,6 @@
     "Summaries": [
         "Enhanced Match Summary",
         "Enhanced Match Groups Summary",
-        "Precision Not Null Summary"
+        "Precision Not None Summary"
     ]
 }

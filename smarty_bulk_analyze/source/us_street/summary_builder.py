@@ -8,6 +8,7 @@ from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.enhanced_mat
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.dpv_match_code_summary import DPVMatchCodeSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.dpv_footnote_summary import DPVFootnoteSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.analysis_misc_summary import AnalysisMiscSummary
+from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.precision_not_none_summary import PrecisionNotNoneSummary
 
 class SummaryBuilder:
     def __init__(self, parameters):
@@ -21,11 +22,13 @@ class SummaryBuilder:
         self.dpv_match_code_summary = DPVMatchCodeSummary()
         self.dpv_footnote_summary = DPVFootnoteSummary()
         self.analysis_mist_summary = AnalysisMiscSummary()
+        self.precision_not_none_summary = PrecisionNotNoneSummary()
 
         self.summary_array = [
             self.footnote_summary,
             self.enhanced_match_summary,
-            self.enhanced_match_groups_summary
+            self.enhanced_match_groups_summary,
+            self.precision_not_none_summary
         ]
 
         if (parameters.config != None):
