@@ -30,6 +30,7 @@ class FootnoteSummary:
         # self.Z = 0
 
         self.name = "Footnote Summary"
+        self.display_name = "Footnote Summary"
 
         self.list = [
             "A#",
@@ -127,6 +128,7 @@ class FootnoteSummary:
         self.examples = {}
 
         self.final = {}
+        self.csv_dict = {}
 
         for item in self.list:
             self.examples.update({item: []})
@@ -148,3 +150,9 @@ class FootnoteSummary:
             if self.count[item] != 0:
                 percentage = round(self.count[item] * 100 / total, 2)
                 self.final[item] = str(self.count[item]) + " (" + str(percentage) + "%)"
+
+    def create_csv_dict(self, total):
+        for item in self.count:
+            if self.count[item] != 0:
+                percentage = round(self.count[item] * 100 / total, 2)
+                self.csv_dict[item] = [str(self.count[item]), str(percentage) + "%"]

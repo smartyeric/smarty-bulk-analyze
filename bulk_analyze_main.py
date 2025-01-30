@@ -23,9 +23,12 @@ def main():
         summary.process_row(row)
 
     summary.finalize_results(reader.row_count)
+    if (parameters.output != None):
+        summary.generate_csv(parameters, reader.row_count)
 
     json_builder = JsonBuilder()
     json_builder.process_summary(summary)
+    
     json_builder.print_json()
 
 if __name__ == "__main__":
