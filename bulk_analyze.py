@@ -3,11 +3,20 @@ import sys
 import json
 import getopt
 from tqdm import tqdm
+import os
+
+from smartystreets_python_sdk import SharedCredentials, StaticCredentials, exceptions, ClientBuilder
+from smartystreets_python_sdk.us_street import Lookup as StreetLookup
+from smartystreets_python_sdk.us_street.match_type import MatchType
 
 stateArg = 'All'
 inputFile = sys.argv[1]
 outputFile = 'none'
-options, remainder = getopt.getopt(sys.argv[1:], 'i:s:o:', ['input=', 'state=', 'output='])
+validate = False 
+auth_id = os.environ['SMARTY_AUTH_ID']
+auth_token = os.environ['SMARTY_AUTH_TOKEN']
+
+options, remainder = getopt.getopt(sys.argv[1:], 'i:s:o:v:', ['input=', 'state=', 'output=', 'validate', 'auth-id=', 'auth-token='])
 for opt, arg in options:
     if (opt in ('-i', '--input')):
         inputFile = arg
@@ -15,7 +24,13 @@ for opt, arg in options:
         stateArg = arg
     if (opt in ('-o', '--output')):
         outputFile = arg
-
+    if (opt in ('-v' '--validate')):
+        validate = True
+    if (opt == '--auth-id'):
+        auth_id = arg
+    if (opt == '--auth-token'):
+        auth_token = arg
+    
 states = [
     "AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "IA",
     "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO",
@@ -167,7 +182,6 @@ def add_examples(inputArray, recordCount):
             if (summary_value + '2' in inputExamples):
                 exampleDict['Example 2'] = f"{inputExamples[summary_value + '2']}"
             finalDict [summary_value + ' Examples'] = exampleDict.copy()
-            exampleDict = {}
     return finalDict
 
 def generate_unmatched_summary(records):
@@ -368,6 +382,7 @@ def generate_matched_summary(records):
             else:
                 enhancedMatchPostalDict['postal-match'] = 1
                 exampleDict[enhancedMatchPostalDescriptionDict['postal-match']] = generate_example(row)
+        #ADD ENHANCED MATCH HERE
     for index in standardDict:
         for item in standardDict[index]:
             matchedSum[fullDictDescription[index][item]] = fullDictIDs[index][item]
@@ -424,6 +439,7 @@ def generate_json(inputSum, initialSum, unmatchedSum, matchedSum):
     jDict["Initial Summary"] = initialSum
     jDict["Metadata"] = matchedSum
     jDict["Unmatched Summary"] = unmatchedSum
+    # Make a new entry here for the datafields you are adding
     return json.dumps(jDict, indent=4)
 
 def generate_example(row):
@@ -434,11 +450,7 @@ def generate_example(row):
         example = example + ' ' + str(row.get('[last_line]'))
     return example
 
-def main():
-    file_path = inputFile
-    detected_delimiter = detect_delimiter(file_path)
-    records = read_csv_file(file_path, delimiter=detected_delimiter)
-    
+def bulk_output_analyze(file_path, detected_delimiter, records):
     print("Analyzing records...")
     summary_array = count_records(records)
     recordCount = len(records)
@@ -448,10 +460,71 @@ def main():
     unmatchedSum = add_examples(unmatchedArray, recordCount)
     matchedArray = generate_matched_summary(records)
     matchedSum = add_examples(matchedArray, recordCount)
-    
+    # Make a new entry here for the datafields you are adding
+
     print("Generating JSON output...")
     output_json = generate_json(inputSum, initialSum, unmatchedSum, matchedSum)
     print(output_json)
+
+def main():
+    file_path = inputFile
+    detected_delimiter = detect_delimiter(file_path)
+    
+    #Add an if statement that uses the validate flag to determine if the file needs to be validated or not.
+    print("Run validation: " + str(validate))
+    if (validate):
+        print("The validate flag is working")
+        records_validate = read_csv_file(file_path, delimiter=detected_delimiter)
+        # Make code that validates the addresses and sticks them in a csv
+
+        credentials = StaticCredentials(auth_id, auth_token)
+        client = ClientBuilder(credentials).build_us_street_api_client()
+
+        lookup = StreetLookup()
+        lookup.input_id = "24601"  # Optional ID from your system
+        lookup.addressee = "John Doe"
+        lookup.street = "1600 Amphitheatre Pkwy"
+        lookup.street2 = "closet under the stairs"
+        lookup.secondary = "APT 2"
+        lookup.urbanization = ""  # Only applies to Puerto Rico addresses
+        lookup.city = "Mountain View"
+        lookup.state = "CA"
+        lookup.zipcode = "94043"
+        lookup.candidates = 3
+        lookup.match = MatchType.ENHANCED  # "invalid" is the most permissive match,
+                                          # this will always return at least one result even if the address is invalid.
+                                          # Refer to the documentation for additional Match Strategy options.
+
+        try:
+            client.send_lookup(lookup)
+        except exceptions.SmartyException as err:
+            print(err)
+            return
+
+        result = lookup.result
+
+        if not result:
+            print("No candidates. This means the address is not valid.")
+            return
+
+        first_candidate = result[0]
+        print(result)
+        print("Address: " + first_candidate.delivery_line_1 + " " + first_candidate.last_line)
+
+
+        # records = read_csv_file([INSERT OUTPUT FILE PATH HERE], delimiter=detected_delimiter)
+
+
+        records = read_csv_file(file_path, delimiter=detected_delimiter) # <-- do this until you fix it.
+
+    else:
+        records = read_csv_file(file_path, delimiter=detected_delimiter)
+    
+    bulk_output_analyze(file_path, detected_delimiter, records)
+    
+    
+    
+    
 
 if __name__ == "__main__":
     main()
