@@ -11,6 +11,7 @@ from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.enhanced_mat
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.enhanced_match_no_ignore_summary import EnhancedMatchNoIgnoreSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.dpv_match_code_summary import DPVMatchCodeSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.dpv_footnote_summary import DPVFootnoteSummary
+from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.dpv_footnote_groups_summary import DPVFootnoteGroupsSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.analysis_misc_summary import AnalysisMiscSummary
 from smarty_bulk_analyze.source.us_street.summaries.fields.analysis.precision_not_none_summary import PrecisionNotNoneSummary
 
@@ -26,7 +27,8 @@ class SummaryBuilder:
         self.enhanced_match_no_ignore_summary = EnhancedMatchNoIgnoreSummary()
         self.dpv_match_code_summary = DPVMatchCodeSummary()
         self.dpv_footnote_summary = DPVFootnoteSummary()
-        self.analysis_mist_summary = AnalysisMiscSummary()
+        self.dpv_footnote_groups_summary = DPVFootnoteGroupsSummary()
+        self.analysis_misc_summary = AnalysisMiscSummary()
         self.precision_not_none_summary = PrecisionNotNoneSummary()
 
         self.summary_array = [
@@ -34,7 +36,10 @@ class SummaryBuilder:
             self.enhanced_match_summary,
             self.enhanced_match_groups_summary,
             self.precision_not_none_summary,
-            self.enhanced_match_no_ignore_summary
+            self.enhanced_match_no_ignore_summary,
+            self.dpv_footnote_summary,
+            self.dpv_footnote_groups_summary,
+            self.analysis_misc_summary
         ]
 
         if (parameters.config != None):

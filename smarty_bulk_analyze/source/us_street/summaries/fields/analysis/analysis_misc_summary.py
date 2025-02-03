@@ -1,8 +1,9 @@
 class AnalysisMiscSummary:
     def __init__(self):
-        self.DPVCMRA = 0
-        self.DPVVACANT = 0
-        self.SUITELINK = 0
+        self.name = "Analysis Miscellaneous Summary"
+        self.display_name = "Analysis Miscellaneous Summary"
+        
+        self.count = {}
 
         self.list = [
             "dpv_cmra",
@@ -18,5 +19,30 @@ class AnalysisMiscSummary:
 
         self.examples = {}
 
-        for item in self.list:
-            self.examples.update({item: []})
+        self.final = {}
+        self.csv_dict = {}
+    
+    def process_row(self, row):
+        for column_name in self.list:
+            temp_string = row.get("[" + column_name + "]")
+            if temp_string == "":
+                temp_string == "N"
+            if temp_string in self.count:
+                self.count[column_name] += 1
+            else:
+                self.count[column_name] =1
+
+    def create_final_dict(self, total):
+        for item in self.count:
+            if self.count[item] != 0:
+                percentage = round(self.count[item] * 100 / total, 2)
+                self.final[item] = str(self.count[item]) + " (" + str(percentage) + "%)"
+    
+    def create_csv_dict(self, total):
+        for item in self.count:
+            if self.count[item] != 0:
+                percentage = round(self.count[item] * 100 / total, 2)
+                self.csv_dict[item] = [str(self.count[item]), str(percentage) + "%"] 
+
+        # for item in self.list:
+        #     self.examples.update({item: []})

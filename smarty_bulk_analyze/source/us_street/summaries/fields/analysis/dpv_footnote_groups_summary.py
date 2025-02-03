@@ -1,6 +1,6 @@
-class DPVFootnoteSummary:
+class DPVFootnoteGroupsSummary:
     def __init__(self):
-        self.name = 'DPV Footnote Summary'
+        self.name = 'DPV Footnote Groups Summary'
         self.display_name = 'DPV Footnote Summary'
         self.count = {}
 
@@ -53,19 +53,12 @@ class DPVFootnoteSummary:
 
     def process_row(self, row):
         temp_string = row.get('[dpv_footnotes]')
-        break_up_list = []
-        
         if temp_string == "":
             temp_string = "blank"
+        if temp_string in self.count:
+            self.count[temp_string] += 1
         else:
-            for i in range(0, len(temp_string), 2):
-                break_up_list.append(temp_string[i] + temp_string[i+1])
-
-        for footnote in break_up_list:
-            if footnote in self.count:
-                self.count[footnote] += 1
-            else:
-                self.count[footnote] = 1
+            self.count[temp_string] = 1
 
     def create_final_dict(self, total):
         for item in self.count:
